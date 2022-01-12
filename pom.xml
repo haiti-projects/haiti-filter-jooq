@@ -12,6 +12,12 @@
     <name>Haiti Filter JOOQ</name>
     <description>JOOQ based filtering module</description>
     <url>https://github.com/haiti-projects/haiti-filter-jooq</url>
+    <licenses>
+        <license>
+            <name>BSD 3-Clause License</name>
+            <url>https://raw.githubusercontent.com/haiti-projects/haiti-filter-jooq/master/LICENSE</url>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
