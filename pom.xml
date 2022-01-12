@@ -6,7 +6,7 @@
 
     <groupId>dev.struchkov.haiti.filter</groupId>
     <artifactId>haiti-filter-jooq</artifactId>
-    <version>0.1.0-RELEASE</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>Haiti Filter JOOQ</name>
