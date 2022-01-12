@@ -37,12 +37,14 @@ public class CriteriaJooqQuery implements FilterQuery {
 
     @Override
     public <Y extends Comparable<? super Y>> FilterQuery greaterThan(@NonNull String field, Y value) {
-        return this;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция пока не поддерживается");
     }
 
     @Override
     public <Y extends Comparable<? super Y>> FilterQuery lessThan(@NonNull String field, Y value) {
-        return this;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция пока не поддерживается");
     }
 
     @Override
@@ -85,7 +87,8 @@ public class CriteriaJooqQuery implements FilterQuery {
 
     @Override
     public FilterQuery checkBoolInt(@NonNull String field, Boolean flag) {
-        return this;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция пока не поддерживается");
     }
 
     @Override

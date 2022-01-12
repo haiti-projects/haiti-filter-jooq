@@ -72,12 +72,14 @@ public class CriteriaJooqFilter implements Filter {
 
     @Override
     public Filter not(FilterQuery filterQuery) {
-        return null;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция отрицания пока не поддерживается");
     }
 
     @Override
     public Filter not(Consumer<FilterQuery> query) {
-        return null;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция отрицания пока не поддерживается");
     }
 
     public Filter page(@NonNull String fieldOrder, Object id, int pageSize) {
@@ -88,8 +90,10 @@ public class CriteriaJooqFilter implements Filter {
     }
 
     public Filter join(@NonNull JoinTable... joinTables) {
-        this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
-        return this;
+        // FIXME: Добавить поддержку
+        throw new IllegalStateException("Операция пока не поддерживается");
+//        this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
+//        return this;
     }
 
     private void generateAnd(CriteriaJooqQuery criteriaQuery) {
