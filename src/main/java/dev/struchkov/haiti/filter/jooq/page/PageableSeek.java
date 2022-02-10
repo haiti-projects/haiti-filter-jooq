@@ -1,18 +1,20 @@
 package dev.struchkov.haiti.filter.jooq.page;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import dev.struchkov.haiti.utils.Assert;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PageableSeek {
 
     private final Object lastId;
     private int pageSize = 30;
+
+    private PageableSeek(Object lastId) {
+        this.lastId = lastId;
+    }
+
+    private PageableSeek(Object lastId, int pageSize) {
+        this.lastId = lastId;
+        this.pageSize = pageSize;
+    }
 
     public static PageableSeek empty() {
         return new PageableSeek(null);
@@ -22,12 +24,22 @@ public class PageableSeek {
         return new PageableSeek(null, pageSize);
     }
 
-    public static PageableSeek of(@NonNull Object lastId) {
+    public static PageableSeek of(Object lastId) {
+        Assert.isNotNull(lastId);
         return new PageableSeek(lastId);
     }
 
-    public static PageableSeek of(@NonNull Object lastId, int pageSize) {
+    public static PageableSeek of(Object lastId, int pageSize) {
+        Assert.isNotNull(lastId);
         return new PageableSeek(lastId, pageSize);
+    }
+
+    public Object getLastId() {
+        return lastId;
+    }
+
+    public int getPageSize() {
+        return pageSize;
     }
 
 }

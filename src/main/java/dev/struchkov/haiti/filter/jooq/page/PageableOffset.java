@@ -1,17 +1,18 @@
 package dev.struchkov.haiti.filter.jooq.page;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PageableOffset {
 
     private final int pageNumber;
     private int pageSize = 30;
+
+    private PageableOffset(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    private PageableOffset(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+    }
 
     public static PageableOffset of(int pageNumber) {
         return new PageableOffset(pageNumber);
@@ -19,6 +20,18 @@ public class PageableOffset {
 
     public static PageableOffset of(int pageNumber, int pageSize) {
         return new PageableOffset(pageNumber, pageSize);
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
 }

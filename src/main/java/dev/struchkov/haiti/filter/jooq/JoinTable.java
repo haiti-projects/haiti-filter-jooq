@@ -1,17 +1,12 @@
 package dev.struchkov.haiti.filter.jooq;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import dev.struchkov.haiti.utils.Assert;
 
 /**
  * Контейнер для соединения с таблицами.
  *
  * @author upagge 15.04.2021
  */
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JoinTable {
 
     private final String tableName;
@@ -19,12 +14,37 @@ public class JoinTable {
     private final String fieldReference;
     private final JoinTypeOperation joinTypeOperation;
 
-    public static JoinTable ofLeft(@NonNull String tableName, @NonNull String fieldBase, @NonNull String fieldReference) {
+    private JoinTable(String tableName, String fieldBase, String fieldReference, JoinTypeOperation joinTypeOperation) {
+        this.tableName = tableName;
+        this.fieldBase = fieldBase;
+        this.fieldReference = fieldReference;
+        this.joinTypeOperation = joinTypeOperation;
+    }
+
+    public static JoinTable ofLeft(String tableName, String fieldBase, String fieldReference) {
+        Assert.isNotNull(tableName, fieldBase, fieldReference);
         return new JoinTable(tableName, fieldBase, fieldReference, JoinTypeOperation.LEFT);
     }
 
-    public static JoinTable of(@NonNull String tableName, @NonNull String fieldBase, @NonNull String fieldReference, JoinTypeOperation joinType) {
+    public static JoinTable of(String tableName, String fieldBase, String fieldReference, JoinTypeOperation joinType) {
+        Assert.isNotNull(tableName, fieldBase, fieldReference);
         return new JoinTable(tableName, fieldBase, fieldReference, joinType);
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public String getFieldBase() {
+        return fieldBase;
+    }
+
+    public String getFieldReference() {
+        return fieldReference;
+    }
+
+    public JoinTypeOperation getJoinTypeOperation() {
+        return joinTypeOperation;
     }
 
 }
