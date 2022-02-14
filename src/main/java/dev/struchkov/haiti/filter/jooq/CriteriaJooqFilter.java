@@ -196,9 +196,7 @@ public class CriteriaJooqFilter {
 //                }
 //            }
 //        }
-        final SelectConditionStep<? extends Record> where = from.where(conditions);
-        setSort(where);
-        return where;
+        return from.where(conditions);
     }
 
     private SelectSeekStepN<? extends Record> setSort(SelectConditionStep<? extends Record> where) {
