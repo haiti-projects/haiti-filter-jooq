@@ -1,4 +1,4 @@
-package dev.struchkov.haiti.filter.jooq;
+package dev.struchkov.haiti.filter.jooq.join;
 
 /**
  * Разрешенные типы операции JOIN.

@@ -3,6 +3,8 @@ package dev.struchkov.haiti.filter.jooq;
 import dev.struchkov.haiti.filter.jooq.exception.FilterJooqHaitiException;
 import dev.struchkov.haiti.filter.jooq.page.PageableOffset;
 import dev.struchkov.haiti.filter.jooq.page.PageableSeek;
+import dev.struchkov.haiti.filter.jooq.sort.SortContainer;
+import dev.struchkov.haiti.filter.jooq.sort.SortType;
 import dev.struchkov.haiti.utils.Assert;
 import org.jooq.Condition;
 import org.jooq.DSLContext;

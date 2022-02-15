@@ -1,4 +1,4 @@
-package dev.struchkov.haiti.filter.jooq;
+package dev.struchkov.haiti.filter.jooq.sort;
 
 
 import dev.struchkov.haiti.utils.Assert;
