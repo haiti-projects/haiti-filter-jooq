@@ -26,6 +26,11 @@ public class JoinTable {
         return new JoinTable(tableName, fieldBase, fieldReference, JoinTypeOperation.LEFT);
     }
 
+    public static JoinTable onRight(String tableName, String fieldBase, String fieldReference) {
+        Assert.isNotNull(tableName, fieldBase, fieldReference);
+        return new JoinTable(tableName, fieldBase, fieldReference, JoinTypeOperation.RIGHT);
+    }
+
     public static JoinTable of(String tableName, String fieldBase, String fieldReference, JoinTypeOperation joinType) {
         Assert.isNotNull(tableName, fieldBase, fieldReference);
         return new JoinTable(tableName, fieldBase, fieldReference, joinType);

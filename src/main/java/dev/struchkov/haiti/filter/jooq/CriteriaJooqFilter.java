@@ -1,6 +1,8 @@
 package dev.struchkov.haiti.filter.jooq;
 
 import dev.struchkov.haiti.filter.jooq.exception.FilterJooqHaitiException;
+import dev.struchkov.haiti.filter.jooq.join.JoinTable;
+import dev.struchkov.haiti.filter.jooq.join.JoinTypeOperation;
 import dev.struchkov.haiti.filter.jooq.page.PageableOffset;
 import dev.struchkov.haiti.filter.jooq.page.PageableSeek;
 import dev.struchkov.haiti.filter.jooq.sort.SortContainer;
@@ -8,17 +10,28 @@ import dev.struchkov.haiti.filter.jooq.sort.SortType;
 import dev.struchkov.haiti.utils.Assert;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Operator;
 import org.jooq.Query;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.jooq.SelectConditionStep;
+import org.jooq.SelectHavingStep;
 import org.jooq.SelectJoinStep;
+import org.jooq.SelectLimitStep;
 import org.jooq.SelectSeekStepN;
+import org.jooq.SelectSelectStep;
 import org.jooq.SortField;
+import org.jooq.Table;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static dev.struchkov.haiti.filter.jooq.exception.FilterJooqHaitiException.filterJooqException;
 import static org.jooq.impl.DSL.condition;
@@ -29,17 +42,18 @@ public class CriteriaJooqFilter {
     private final List<Condition> andConditions = new ArrayList<>();
     private final List<Condition> orConditions = new ArrayList<>();
     private final List<Condition> notConditions = new ArrayList<>();
-//    private final List<JoinTable> joinTables = new ArrayList<>();
+    private final List<JoinTable> joinTables = new ArrayList<>();
 
-    private final String table;
+    private final Table<Record> generalTable;
     private final DSLContext dsl;
 
     private PageableOffset offset;
     private PageableSeek seek;
     private List<SortContainer> sorts = new ArrayList<>();
+    private String groupByField;
 
     protected CriteriaJooqFilter(String table, DSLContext dsl) {
-        this.table = table;
+        this.generalTable = DSL.table(table);
         this.dsl = dsl;
     }
 
@@ -118,12 +132,18 @@ public class CriteriaJooqFilter {
         return this;
     }
 
-//    FIXME: Добавить поддержку
-//    public CriteriaJooqFilter join(@NonNull JoinTable... joinTables) {
-//        throw new IllegalStateException("Операция пока не поддерживается");
-//        this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
-//        return this;
-//    }
+    public CriteriaJooqFilter groupBy(String field) {
+        if (field != null) {
+            this.groupByField = field;
+        }
+        return this;
+    }
+
+    public CriteriaJooqFilter join(JoinTable... joinTables) {
+        Assert.isNotNull(joinTables);
+        this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
+        return this;
+    }
 
     private void generateAnd(CriteriaJooqQuery criteriaQuery) {
         andConditions.addAll(criteriaQuery.getConditions());
@@ -133,35 +153,67 @@ public class CriteriaJooqFilter {
         orConditions.addAll(criteriaQuery.getConditions());
     }
 
-    public Query build() {
-        final List<Condition> conditions = getConditions();
-        SelectJoinStep<Record> from = dsl.select().from(table);
-//        if (!joinTables.isEmpty()) {
-//            for (JoinTable joinTable : joinTables) {
-//                final String tableName = joinTable.getTableName();
-//                final JoinTypeOperation joinType = joinTable.getJoinTypeOperation();
-//                final String fieldReference = joinTable.getFieldReference();
-//                final String fieldBase = joinTable.getFieldBase();
-//                final Condition on = field(fieldReference).eq(field(fieldBase));
-//                switch (joinType) {
-//                    case LEFT:
-//                        from = from.leftJoin(tableName).on(on);
-//                        break;
-//                    case INNER:
-//                        from = from.innerJoin(tableName).on(on);
-//                        break;
-//                    case RIGHT:
-//                        from = from.rightJoin(tableName).on(on);
-//                        break;
-//                }
-//            }
-//        }
-        final SelectConditionStep<Record> where = from.where(conditions);
-        final SelectSeekStepN<? extends Record> sort = setSort(where);
-        setPaginationOffset(where);
-        setPaginationSeek(sort);
+    public Query generateQuery(String... fields) {
+        final List<Field<Object>> selectFields = Arrays.stream(fields).map(DSL::field).collect(Collectors.toList());
+        final SelectSelectStep<Record> mainSelect = !selectFields.isEmpty() ? dsl.select(selectFields) : dsl.select();
+        final SelectLimitStep<? extends Record> selectSeekStepN = generate(mainSelect);
+        return setPaginationOffset(selectSeekStepN);
+    }
 
+    public Query generateCount() {
+        final SelectSelectStep<Record1<Integer>> selectCount = dsl.selectCount();
+        return generate(selectCount);
+    }
+
+    private SelectLimitStep<? extends Record> generate(SelectSelectStep<? extends Record> mainSelect) {
+        final SelectJoinStep<? extends Record> from = mainSelect.from(generalTable);
+        final SelectJoinStep<? extends Record> join = joinTables(from);
+        final SelectConditionStep<? extends Record> where = join.where(getConditions());
+        final SelectHavingStep<? extends Record> groupBy = getGroupBy(where);
+        final SelectLimitStep<? extends Record> orderBy = getOrderBy(groupBy);
+        return orderBy;
+    }
+
+    private SelectLimitStep<? extends Record> getOrderBy(SelectHavingStep<? extends Record> groupBy) {
+        if (sorts != null && !sorts.isEmpty()) {
+            return groupBy.orderBy(getOrderBy());
+        }
+        return groupBy;
+    }
+
+    private SelectHavingStep<? extends Record> getGroupBy(SelectConditionStep<? extends Record> where) {
+        if (groupByField != null) {
+            return where.groupBy(field(groupByField));
+        }
         return where;
+    }
+
+    private SelectJoinStep<? extends Record> joinTables(SelectJoinStep<? extends Record> from) {
+        if (!joinTables.isEmpty()) {
+            for (JoinTable joinTable : joinTables) {
+                final String tableName = joinTable.getTableName();
+
+                final Table<Record> dlsJoinTableName = DSL.table(tableName);
+
+                final JoinTypeOperation joinType = joinTable.getJoinTypeOperation();
+                final Field fieldReference = field(joinTable.getFieldReference());
+                final Field fieldBase = field(joinTable.getFieldBase());
+
+                final Condition on = fieldBase.eq(fieldReference);
+                switch (joinType) {
+                    case LEFT:
+                        from = from.leftJoin(dlsJoinTableName).on(on);
+                        break;
+                    case INNER:
+                        from = from.innerJoin(dlsJoinTableName).on(on);
+                        break;
+                    case RIGHT:
+                        from = from.rightJoin(dlsJoinTableName).on(on);
+                        break;
+                }
+            }
+        }
+        return from;
     }
 
     private List<Condition> getConditions() {
@@ -175,33 +227,7 @@ public class CriteriaJooqFilter {
         return conditions;
     }
 
-    public Query count() {
-        final List<Condition> conditions = getConditions();
-        SelectJoinStep<? extends Record> from = dsl.selectCount().from(table);
-//        if (!joinTables.isEmpty()) {
-//            for (JoinTable joinTable : joinTables) {
-//                final String tableName = joinTable.getTableName();
-//                final JoinTypeOperation joinType = joinTable.getJoinTypeOperation();
-//                final String fieldReference = joinTable.getFieldReference();
-//                final String fieldBase = joinTable.getFieldBase();
-//                final Condition on = field(fieldReference).eq(field(fieldBase));
-//                switch (joinType) {
-//                    case LEFT:
-//                        from = from.leftJoin(tableName).on(on);
-//                        break;
-//                    case INNER:
-//                        from = from.innerJoin(tableName).on(on);
-//                        break;
-//                    case RIGHT:
-//                        from = from.rightJoin(tableName).on(on);
-//                        break;
-//                }
-//            }
-//        }
-        return from.where(conditions);
-    }
-
-    private SelectSeekStepN<? extends Record> setSort(SelectConditionStep<? extends Record> where) {
+    private Collection<SortField<Object>> getOrderBy() {
         if (!sorts.isEmpty()) {
             final List<SortField<Object>> newSorts = new ArrayList<>();
             for (SortContainer sort : sorts) {
@@ -213,9 +239,9 @@ public class CriteriaJooqFilter {
                     newSorts.add(field(fieldName).desc());
                 }
             }
-            return where.orderBy(newSorts);
+            return newSorts;
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private void setPaginationSeek(SelectSeekStepN<? extends Record> sort) {
@@ -236,13 +262,14 @@ public class CriteriaJooqFilter {
         }
     }
 
-    private void setPaginationOffset(SelectConditionStep<? extends Record> where) {
+    private Query setPaginationOffset(SelectLimitStep<? extends Record> selectBuilder) {
         if (offset != null) {
             final int pageNumber = offset.getPageNumber();
             final int pageSize = offset.getPageSize();
             final int offsetNumber = (pageNumber + 1) * pageSize - pageSize;
-            where.limit(pageSize).offset(offsetNumber);
+            return selectBuilder.limit(pageSize).offset(offsetNumber);
         }
+        return selectBuilder;
     }
 
 }

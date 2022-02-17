@@ -63,9 +63,9 @@ public class CriteriaJooqQuery {
         final Field<Object> query = field(field);
         if (value != null) {
             if (ignoreCase) {
-                conditions.add(query.like(value));
-            } else {
                 conditions.add(query.likeIgnoreCase(value));
+            } else {
+                conditions.add(query.like(value));
             }
         }
         return this;
