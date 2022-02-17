@@ -192,14 +192,24 @@ public class CriteriaJooqFilter {
         if (!joinTables.isEmpty()) {
             for (JoinTable joinTable : joinTables) {
                 final String tableName = joinTable.getTableName();
+                String fieldBase = joinTable.getFieldBase();
+                String fieldReference = joinTable.getFieldReference();
 
-                final Table<Record> dlsJoinTableName = DSL.table(tableName);
+                Table<Record> dlsJoinTableName = DSL.table(tableName);
+
+                if (joinTable.getAlias() != null) {
+                    dlsJoinTableName = dlsJoinTableName.as(joinTable.getAlias());
+                    fieldReference = joinTable.getAlias() + "." + fieldReference;
+                } else {
+                    fieldReference = tableName + "." + fieldReference;
+                }
 
                 final JoinTypeOperation joinType = joinTable.getJoinTypeOperation();
-                final Field fieldReference = field(joinTable.getFieldReference());
-                final Field fieldBase = field(joinTable.getFieldBase());
 
-                final Condition on = fieldBase.eq(fieldReference);
+                final Field dslFieldBase = field(fieldBase);
+                final Field dslFieldReference = field(fieldReference);
+
+                final Condition on = dslFieldBase.eq(dslFieldReference);
                 switch (joinType) {
                     case LEFT:
                         from = from.leftJoin(dlsJoinTableName).on(on);
