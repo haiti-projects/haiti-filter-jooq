@@ -58,6 +58,16 @@ public class CriteriaJooqQuery {
         return this;
     }
 
+    public CriteriaJooqQuery like(String field, String value) {
+        like(field, value, false);
+        return this;
+    }
+
+    public CriteriaJooqQuery likeIgnoreCase(String field, String value) {
+        like(field, value, true);
+        return this;
+    }
+
     public CriteriaJooqQuery like(String field, String value, boolean ignoreCase) {
         Assert.isNotNull(field);
         final Field<Object> query = field(field);
