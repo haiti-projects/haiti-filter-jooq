@@ -47,10 +47,10 @@ public class CriteriaJooqFilter {
     private final Table<Record> generalTable;
     private final DSLContext dsl;
 
+    private final List<SortContainer> sorts = new ArrayList<>();
     private PageableOffset offset;
     private PageableSeek seek;
-    private List<SortContainer> sorts = new ArrayList<>();
-    private String groupByField;
+    private final List<String> groupByFields = new ArrayList<>();
 
     protected CriteriaJooqFilter(String table, DSLContext dsl) {
         this.generalTable = DSL.table(table);
@@ -133,7 +133,21 @@ public class CriteriaJooqFilter {
 
     public CriteriaJooqFilter groupBy(String field) {
         if (field != null) {
-            this.groupByField = field;
+            groupByFields.add(field);
+        }
+        return this;
+    }
+
+    public CriteriaJooqFilter groupBy(String... fields) {
+        if (fields != null && fields.length > 0) {
+            groupByFields.addAll(Arrays.asList(fields));
+        }
+        return this;
+    }
+
+    public CriteriaJooqFilter groupBy(Collection<String> fields) {
+        if (fields != null && !fields.isEmpty()) {
+            groupByFields.addAll(fields);
         }
         return this;
     }
@@ -174,15 +188,19 @@ public class CriteriaJooqFilter {
     }
 
     private SelectLimitStep<? extends Record> getOrderBy(SelectHavingStep<? extends Record> groupBy) {
-        if (sorts != null && !sorts.isEmpty()) {
+        if (!sorts.isEmpty()) {
             return groupBy.orderBy(getOrderBy());
         }
         return groupBy;
     }
 
     private SelectHavingStep<? extends Record> getGroupBy(SelectConditionStep<? extends Record> where) {
-        if (groupByField != null) {
-            return where.groupBy(field(groupByField));
+        if (!groupByFields.isEmpty()) {
+            return where.groupBy(
+                    groupByFields.stream()
+                            .map(DSL::field)
+                            .collect(Collectors.toList())
+            );
         }
         return where;
     }
