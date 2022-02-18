@@ -17,10 +17,6 @@ public class SortContainer {
         this.type = type;
     }
 
-    public static SortContainer empty() {
-        return new SortContainer(null);
-    }
-
     public static SortContainer of(String fieldName) {
         Assert.isNotNull(fieldName);
         return new SortContainer(fieldName);

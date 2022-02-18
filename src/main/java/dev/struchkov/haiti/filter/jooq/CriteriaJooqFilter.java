@@ -111,8 +111,7 @@ public class CriteriaJooqFilter {
     }
 
     public CriteriaJooqFilter sort(SortContainer container) {
-        Assert.isNotNull(container);
-        if (container.getFieldName() != null) {
+        if (container != null && container.getFieldName() != null) {
             this.sorts.add(container);
         }
         return this;
