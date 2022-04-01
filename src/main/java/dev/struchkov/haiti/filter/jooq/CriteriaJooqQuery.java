@@ -45,8 +45,12 @@ public class CriteriaJooqQuery {
 
     public <U> CriteriaJooqQuery matchPhrase(String field, Set<U> values) {
         Assert.isNotNull(field);
-        if (values != null && !values.isEmpty()) {
-            conditions.add(DSL.field(field).in(values));
+        if (values != null) {
+            if (values.isEmpty()) {
+                conditions.add(DSL.field(field).isNull());
+            } else {
+                conditions.add(DSL.field(field).in(values));
+            }
         }
         return this;
     }
