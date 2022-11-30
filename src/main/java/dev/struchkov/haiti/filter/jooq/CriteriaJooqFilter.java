@@ -7,7 +7,7 @@ import dev.struchkov.haiti.filter.jooq.page.PageableOffset;
 import dev.struchkov.haiti.filter.jooq.page.PageableSeek;
 import dev.struchkov.haiti.filter.jooq.sort.SortContainer;
 import dev.struchkov.haiti.filter.jooq.sort.SortType;
-import dev.struchkov.haiti.utils.Assert;
+import dev.struchkov.haiti.utils.Inspector;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -97,15 +97,15 @@ public class CriteriaJooqFilter {
 //    }
 
     public CriteriaJooqFilter page(PageableOffset offset) {
-        Assert.isNotNull(offset);
-        Assert.isNull(seek, filterJooqException("Нельзя установить два типа пагинации одновременно"));
+        Inspector.isNotNull(offset);
+        Inspector.isNull(seek, filterJooqException("Нельзя установить два типа пагинации одновременно"));
         this.offset = offset;
         return this;
     }
 
     public CriteriaJooqFilter page(PageableSeek seek) {
-        Assert.isNotNull(seek);
-        Assert.isNull(offset, filterJooqException("Нельзя установить два типа пагинации одновременно"));
+        Inspector.isNotNull(seek);
+        Inspector.isNull(offset, filterJooqException("Нельзя установить два типа пагинации одновременно"));
         this.seek = seek;
         return this;
     }
@@ -153,7 +153,7 @@ public class CriteriaJooqFilter {
     }
 
     public CriteriaJooqFilter join(JoinTable... joinTables) {
-        Assert.isNotNull(joinTables);
+        Inspector.isNotNull(joinTables);
         this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
         return this;
     }
@@ -273,7 +273,7 @@ public class CriteriaJooqFilter {
 
     private void setPaginationSeek(SelectSeekStepN<? extends Record> sort) {
         if (seek != null) {
-            Assert.isNotNull(sort, () -> new FilterJooqHaitiException("При использовании пагинации типа seek необходимо указать сортировку"));
+            Inspector.isNotNull(() -> new FilterJooqHaitiException("При использовании пагинации типа seek необходимо указать сортировку"), sort);
             final Integer pageSize = seek.getPageSize();
             final Object lastId = seek.getLastId();
             if (pageSize != null) {

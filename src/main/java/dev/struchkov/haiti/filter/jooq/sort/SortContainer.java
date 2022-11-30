@@ -1,7 +1,7 @@
 package dev.struchkov.haiti.filter.jooq.sort;
 
 
-import dev.struchkov.haiti.utils.Assert;
+import dev.struchkov.haiti.utils.Inspector;
 
 public class SortContainer {
 
@@ -18,12 +18,12 @@ public class SortContainer {
     }
 
     public static SortContainer of(String fieldName) {
-        Assert.isNotNull(fieldName);
+        Inspector.isNotNull(fieldName);
         return new SortContainer(fieldName);
     }
 
     public static SortContainer of(String fieldName, SortType sortType) {
-        Assert.isNotNull(fieldName);
+        Inspector.isNotNull(fieldName);
         return new SortContainer(fieldName, sortType == null ? SortType.ASC : sortType);
     }
 

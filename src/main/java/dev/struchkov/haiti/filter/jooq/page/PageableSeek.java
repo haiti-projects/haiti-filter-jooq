@@ -1,6 +1,6 @@
 package dev.struchkov.haiti.filter.jooq.page;
 
-import dev.struchkov.haiti.utils.Assert;
+import dev.struchkov.haiti.utils.Inspector;
 
 public class PageableSeek {
 
@@ -25,12 +25,12 @@ public class PageableSeek {
     }
 
     public static PageableSeek of(Object lastId) {
-        Assert.isNotNull(lastId);
+        Inspector.isNotNull(lastId);
         return new PageableSeek(lastId);
     }
 
     public static PageableSeek of(Object lastId, int pageSize) {
-        Assert.isNotNull(lastId);
+        Inspector.isNotNull(lastId);
         return new PageableSeek(lastId, pageSize);
     }
 

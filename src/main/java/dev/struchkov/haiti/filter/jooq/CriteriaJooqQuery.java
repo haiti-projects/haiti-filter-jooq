@@ -1,6 +1,6 @@
 package dev.struchkov.haiti.filter.jooq;
 
-import dev.struchkov.haiti.utils.Assert;
+import dev.struchkov.haiti.utils.Inspector;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
@@ -26,7 +26,7 @@ public class CriteriaJooqQuery {
     }
 
     public <Y extends Comparable<? super Y>> CriteriaJooqQuery between(String field, Y from, Y to) {
-        Assert.isNotNull(field);
+        Inspector.isNotNull(field);
         if (from != null && to != null) {
             Condition condition = DSL.field(field).between(from, to);
             conditions.add(condition);
@@ -35,7 +35,7 @@ public class CriteriaJooqQuery {
     }
 
     public CriteriaJooqQuery matchPhrase(String field, Object value) {
-        Assert.isNotNull(field);
+        Inspector.isNotNull(field);
         if (value != null) {
             final Condition condition = condition(Map.of(field(field), value));
             conditions.add(condition);
@@ -44,7 +44,7 @@ public class CriteriaJooqQuery {
     }
 
     public <U> CriteriaJooqQuery matchPhrase(String field, Set<U> values) {
-        Assert.isNotNull(field);
+        Inspector.isNotNull(field);
         if (values != null) {
             if (values.isEmpty()) {
                 conditions.add(DSL.field(field).isNull());
@@ -73,7 +73,7 @@ public class CriteriaJooqQuery {
     }
 
     public CriteriaJooqQuery like(String field, String value, boolean ignoreCase) {
-        Assert.isNotNull(field);
+        Inspector.isNotNull(field);
         final Field<Object> query = field(field);
         if (value != null) {
             if (ignoreCase) {
