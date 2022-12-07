@@ -189,7 +189,9 @@ public class CriteriaJooqFilter {
 
     private SelectLimitStep<? extends Record> getOrderBy(SelectHavingStep<? extends Record> groupBy) {
         if (!sorts.isEmpty()) {
-            return groupBy.orderBy(getOrderBy());
+            final SelectSeekStepN<? extends Record> sort = groupBy.orderBy(getOrderBy());
+            setPaginationSeek(sort);
+            return sort;
         }
         return groupBy;
     }
@@ -275,16 +277,14 @@ public class CriteriaJooqFilter {
         if (seek != null) {
             Inspector.isNotNull(() -> new FilterJooqHaitiException("При использовании пагинации типа seek необходимо указать сортировку"), sort);
             final Integer pageSize = seek.getPageSize();
-            final Object lastId = seek.getLastId();
-            if (pageSize != null) {
-                if (lastId != null) {
-                    sort
-                            .seek(lastId)
-                            .limit(pageSize);
-                } else {
-                    sort
-                            .limit(pageSize);
-                }
+            final Object[] values = seek.getValues();
+            if (values != null) {
+                sort
+                        .seek(values)
+                        .limit(pageSize);
+            } else {
+                sort
+                        .limit(pageSize);
             }
         }
     }
