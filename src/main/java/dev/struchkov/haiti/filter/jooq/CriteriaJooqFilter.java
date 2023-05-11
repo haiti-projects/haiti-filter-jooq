@@ -31,9 +31,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static dev.struchkov.haiti.filter.jooq.exception.FilterJooqHaitiException.filterJooqException;
+import static java.util.stream.Collectors.toList;
 import static org.jooq.impl.DSL.condition;
 import static org.jooq.impl.DSL.field;
 
@@ -41,7 +41,6 @@ public class CriteriaJooqFilter {
 
     private final List<Condition> andConditions = new ArrayList<>();
     private final List<Condition> orConditions = new ArrayList<>();
-    private final List<Condition> notConditions = new ArrayList<>();
     private final List<JoinTable> joinTables = new ArrayList<>();
 
     private final Table<Record> generalTable;
@@ -84,17 +83,6 @@ public class CriteriaJooqFilter {
         generateOr(criteriaQuery);
         return this;
     }
-
-//    FIXME: Добавить поддержку
-//    public CriteriaJooqFilter not(FilterQuery filterQuery) {
-//        throw new IllegalStateException("Операция отрицания пока не поддерживается");
-//    }
-
-
-//    FIXME: Добавить поддержку
-//    public CriteriaJooqFilter not(Consumer<FilterQuery> query) {
-//        throw new IllegalStateException("Операция отрицания пока не поддерживается");
-//    }
 
     public CriteriaJooqFilter page(PageableOffset offset) {
         Inspector.isNotNull(offset);
@@ -154,7 +142,7 @@ public class CriteriaJooqFilter {
 
     public CriteriaJooqFilter join(JoinTable... joinTables) {
         Inspector.isNotNull(joinTables);
-        this.joinTables.addAll(Arrays.stream(joinTables).collect(Collectors.toList()));
+        this.joinTables.addAll(Arrays.stream(joinTables).collect(toList()));
         return this;
     }
 
@@ -167,7 +155,7 @@ public class CriteriaJooqFilter {
     }
 
     public Query generateQuery(String... fields) {
-        final List<Field<Object>> selectFields = Arrays.stream(fields).map(DSL::field).collect(Collectors.toList());
+        final List<Field<Object>> selectFields = Arrays.stream(fields).map(DSL::field).collect(toList());
         final SelectSelectStep<Record> mainSelect = !selectFields.isEmpty() ? dsl.select(selectFields) : dsl.select();
         final SelectLimitStep<? extends Record> selectSeekStepN = generate(mainSelect);
         return setPaginationOffset(selectSeekStepN);
@@ -201,7 +189,7 @@ public class CriteriaJooqFilter {
             return where.groupBy(
                     groupByFields.stream()
                             .map(DSL::field)
-                            .collect(Collectors.toList())
+                            .collect(toList())
             );
         }
         return where;
