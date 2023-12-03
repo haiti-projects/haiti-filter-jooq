@@ -102,6 +102,6 @@ image_pull_secrets:
   - DOCKER_AUTH
 ---
 kind: signature
-hmac: 0d881ddafd2aab97acc4a92df9be4065edbe279d2cbd1641185f5ff1829eb3ac
+hmac: 4e62965b1e3cabed6f3632e2d1baa480b9ddd568f5ea053e1f65fbf13588a64c
 
 ...
