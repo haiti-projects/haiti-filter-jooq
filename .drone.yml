@@ -58,6 +58,7 @@ steps:
         from_secret: GPG_PASSPHRASE
     commands:
       - apk add --update gpg
+      - gpg-agent --daemon
       - echo "$GPG_PRIVATE_KEY" >> gpg.key
       - echo "$MAVEN_SETTINGS" >> maven-settings.xml
       - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --import gpg.key
@@ -95,6 +96,7 @@ steps:
         from_secret: GPG_PASSPHRASE
     commands:
       - apk add --update gpg
+      - gpg-agent --daemon
       - echo "$GPG_PRIVATE_KEY" >> gpg.key
       - echo "$MAVEN_SETTINGS" >> maven-settings.xml
       - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --import gpg.key
@@ -104,6 +106,6 @@ image_pull_secrets:
   - DOCKER_AUTH
 ---
 kind: signature
-hmac: 36690ee8a286c357b078db63ceda9dcff6b352e0a98645ae348e79c2799c2280
+hmac: 99f3bb72cc461e113f3e9550b2fb2bdda3c2b4b6a9f1d4364fe1e6aff4cf718a
 
 ...
