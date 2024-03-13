@@ -57,7 +57,7 @@ steps:
       GPG_PASSPHRASE:
         from_secret: GPG_PASSPHRASE
     commands:
-      - apk add --update gnupg-agent
+      - apk add --no-cache gnupg
       - echo "$GPG_PRIVATE_KEY" >> gpg.key
       - echo "$MAVEN_SETTINGS" >> maven-settings.xml
       - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --import gpg.key
@@ -94,7 +94,7 @@ steps:
       GPG_PASSPHRASE:
         from_secret: GPG_PASSPHRASE
     commands:
-      - apk add --update gnupg-agent
+      - apk add --no-cache gnupg
       - echo "$GPG_PRIVATE_KEY" >> gpg.key
       - echo "$MAVEN_SETTINGS" >> maven-settings.xml
       - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --import gpg.key
@@ -104,6 +104,6 @@ image_pull_secrets:
   - DOCKER_AUTH
 ---
 kind: signature
-hmac: e69478c091a99bc80b716b81bd94bb58ad539435cfc9e56c96abc21ad4c7060d
+hmac: 2288dcbae543b712c60d1e1a5b7cc513a06515939d45bf77237e79642b406048
 
 ...
