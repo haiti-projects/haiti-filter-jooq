@@ -5,6 +5,7 @@ import dev.struchkov.haiti.filter.jooq.join.JoinTable;
 import dev.struchkov.haiti.filter.jooq.join.JoinTypeOperation;
 import dev.struchkov.haiti.filter.jooq.page.PageableOffset;
 import dev.struchkov.haiti.filter.jooq.page.PageableSeek;
+import dev.struchkov.haiti.filter.jooq.sort.NullOrderType;
 import dev.struchkov.haiti.filter.jooq.sort.SortContainer;
 import dev.struchkov.haiti.filter.jooq.sort.SortType;
 import dev.struchkov.haiti.utils.Inspector;
@@ -108,6 +109,13 @@ public class CriteriaJooqFilter {
     public CriteriaJooqFilter sort(String field, SortType sortType) {
         if (field != null) {
             this.sorts.add(SortContainer.of(field, sortType));
+        }
+        return this;
+    }
+
+    public CriteriaJooqFilter sort(String field, SortType sortType, NullOrderType nullsOrder) {
+        if (field != null) {
+            this.sorts.add(SortContainer.of(field, sortType, nullsOrder));
         }
         return this;
     }
@@ -248,12 +256,14 @@ public class CriteriaJooqFilter {
         if (!sorts.isEmpty()) {
             final List<SortField<Object>> newSorts = new ArrayList<>();
             for (SortContainer sort : sorts) {
+                final NullOrderType nullOrderType = sort.getNullOrderType();
                 final SortType sortType = sort.getType();
                 final String fieldName = sort.getFieldName();
-                if (SortType.ASC.equals(sortType)) {
-                    newSorts.add(field(fieldName).asc());
+                final SortField<Object> sortField = SortType.ASC.equals(sortType) ? field(fieldName).asc() : field(fieldName).desc();
+                if (NullOrderType.LAST.equals(nullOrderType)) {
+                    newSorts.add(sortField.nullsLast());
                 } else {
-                    newSorts.add(field(fieldName).desc());
+                    newSorts.add(sortField.nullsFirst());
                 }
             }
             return newSorts;
