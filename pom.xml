@@ -4,7 +4,7 @@
 
     <groupId>dev.struchkov.haiti.filter</groupId>
     <artifactId>haiti-filter-jooq</artifactId>
-    <version>1.2.3</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Haiti Filter JOOQ</name>
@@ -297,7 +297,7 @@
         <connection>scm:git:https://github.com/haiti-projects/haiti-filter-jooq.git</connection>
         <url>https://github.com/haiti-projects/haiti-filter-jooq</url>
         <developerConnection>scm:git:https://github.com/haiti-projects/haiti-filter-jooq.git</developerConnection>
-        <tag>v.1.2.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
