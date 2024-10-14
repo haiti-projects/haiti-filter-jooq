@@ -31,7 +31,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static dev.struchkov.haiti.filter.jooq.exception.FilterJooqHaitiException.filterJooqException;
 import static java.util.stream.Collectors.toList;
@@ -207,24 +209,34 @@ public class CriteriaJooqFilter {
         if (!joinTables.isEmpty()) {
             for (JoinTable joinTable : joinTables) {
                 final String tableName = joinTable.getTableName();
-                String fieldBase = joinTable.getFieldBase();
-                String fieldReference = joinTable.getFieldReference();
 
                 Table<Record> dlsJoinTableName = DSL.table(tableName);
-
                 if (joinTable.getAlias() != null) {
                     dlsJoinTableName = dlsJoinTableName.as(joinTable.getAlias());
-                    fieldReference = joinTable.getAlias() + "." + fieldReference;
-                } else {
-                    fieldReference = tableName + "." + fieldReference;
                 }
+
+                final Set<Condition> joinConditions = joinTable.getFieldReferences().stream()
+                        .map(reference -> {
+                            String fieldBase = reference.getBaseField();
+                            String fieldReference = reference.getReferenceField();
+
+                            if (joinTable.getAlias() != null) {
+                                fieldReference = joinTable.getAlias() + "." + fieldReference;
+                            } else {
+                                fieldReference = tableName + "." + fieldReference;
+                            }
+
+                            final Field dslFieldBase = field(fieldBase);
+                            final Field dslFieldReference = field(fieldReference);
+
+                            return dslFieldBase.eq(dslFieldReference);
+
+                        })
+                        .collect(Collectors.toSet());
 
                 final JoinTypeOperation joinType = joinTable.getJoinTypeOperation();
 
-                final Field dslFieldBase = field(fieldBase);
-                final Field dslFieldReference = field(fieldReference);
-
-                final Condition on = dslFieldBase.eq(dslFieldReference);
+                final Condition on = DSL.and(joinConditions);
                 switch (joinType) {
                     case LEFT:
                         from = from.leftJoin(dlsJoinTableName).on(on);
