@@ -136,16 +136,6 @@ public class CriteriaJooqQuery {
         return this;
     }
 
-    public CriteriaJooqQuery isNull(String field) {
-        conditions.add(DSL.field(field).isNull());
-        return this;
-    }
-
-    public CriteriaJooqQuery isNotNull(String field) {
-        conditions.add(DSL.field(field).isNotNull());
-        return this;
-    }
-
     public CriteriaJooqQuery like(String field, String value, boolean ignoreCase) {
         Inspector.isNotNull(field);
         final Field<Object> query = field(field);
